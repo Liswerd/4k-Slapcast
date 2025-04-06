@@ -9,7 +9,13 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Camera/CameraComponent.h"
 
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+
+//#include <SkeletalMeshAdapter.h>
+//#include <Engine/SkeletalMeshComponent.h>
 #include "PlayerPawn.generated.h"
+
 
 UCLASS()
 class SLAPCAST_API APlayerPawn : public APawn
@@ -29,11 +35,16 @@ public:
 	// Called to move the player
 	void Move(const FInputActionValue& InputActionValue);
 
-	//U prefix denotes a class
-	UPROPERTY(EditAnywhere)
-	class USkeletalMesh* Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* Root;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCapsuleComponent* Collision;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCameraComponent* Camera;
 
 

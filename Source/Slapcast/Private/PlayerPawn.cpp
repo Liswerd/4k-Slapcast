@@ -8,16 +8,23 @@ APlayerPawn::APlayerPawn()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	PawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>("PawnMovement");
-	Mesh = CreateDefaultSubobject<USkeletalMesh>("Mesh");
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
+	//Root = CreateDefaultSubobject<USceneComponent>("Root");
+	//SetRootComponent(Root);
+	Collision = CreateDefaultSubobject<UCapsuleComponent>("Collision");
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Mesh");
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	PawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>("PawnMovement");
+
+	Mesh->SetupAttachment(RootComponent);
+	Collision->SetupAttachment(RootComponent);
+	Camera->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
