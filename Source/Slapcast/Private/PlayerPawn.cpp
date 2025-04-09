@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerPawn.h"
+#include "engine/EngineTypes.h"
+
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -9,7 +10,8 @@ APlayerPawn::APlayerPawn()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
-	//Root = CreateDefaultSubobject<USceneComponent>("Root");
+	RootComponent->Mobility = EComponentMobility::Type::Movable;
+	//Root = CreateDefaultSubobject<USceneComponent>("Root")
 	//SetRootComponent(Root);
 	Collision = CreateDefaultSubobject<UCapsuleComponent>("Collision");
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Mesh");

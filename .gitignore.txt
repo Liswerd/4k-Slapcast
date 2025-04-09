@@ -1,5 +1,5 @@
 # Visual Studio 2015 user specific files
-.vs/
+.vs/**
 
 # Compiled Object files
 *.slo
@@ -67,7 +67,7 @@ Build/*/**
 Saved/*
 
 # Compiled source files for the engine to use
-Intermediate/*
+Intermediate/**
 Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
