@@ -10,10 +10,11 @@ void APlayerPawnController::BeginPlay()
 {
 	//Call the superclass method for BeginPlay() so Unreal knows to include this as part of the list of objects doing stuff
 	Super::BeginPlay();
+	this->SetShowMouseCursor(true);
 
 	//checkf makes sure the IMC and MoveAction are set in the Details pane in Unreal Editor. If not, it'll (intentionally) crash Unreal at this line.
-	checkf(InputMappingContext, TEXT("InputMappingContext is not set in %s"), *GetNameSafe(this));
-	checkf(MoveAction, TEXT("MoveAction is not set in %s"), *GetNameSafe(this));
+	//checkf(InputMappingContext, TEXT("InputMappingContext is not set in %s"), *GetNameSafe(this));
+	//checkf(MoveAction, TEXT("MoveAction is not set in %s"), *GetNameSafe(this));
 
 	//Get a pointer to the EnhancedInputSubsystem
 	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
@@ -25,6 +26,7 @@ void APlayerPawnController::BeginPlay()
 
 void APlayerPawnController::Move(const FInputActionValue& InputActionValue)
 {
+	//GetHUD<AMagicHud>()
 	if (APlayerPawn* ControlPawn = GetPawn<APlayerPawn>())
 	{
 		//GEngine->AddOnScreenDebugMessage(0, 3.0f, FColor::Green, FString(ControlPawn->GetName()));

@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputLibrary.h"
+#include "MagicHUD.h"
+
 #include "PlayerPawnController.generated.h"
 
 /**
@@ -23,6 +25,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inputs")
 	UInputMappingContext* InputMappingContext;
+
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hud")
+	AMagicHUD* MagicHud;*/
 
 private:
 	// called when button pressed
