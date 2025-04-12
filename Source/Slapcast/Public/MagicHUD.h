@@ -29,13 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* LineMaterial;
 
-private:
-
-	//void RunDraw();
-
-
-	UCanvasRenderTarget2D* RenderTarget;
-	UMaterialInstanceDynamic* BaseDynMaterial;
+protected:
+	//UCanvasRenderTarget2D* RenderTarget;
+	//UMaterialInstanceDynamic* BaseDynMaterial;
 	UMaterialInstanceDynamic* LineDynMaterial;
 
 };
