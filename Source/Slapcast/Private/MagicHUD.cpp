@@ -9,7 +9,7 @@
 AMagicHUD::AMagicHUD()
 {
 	// make render target
-	RenderTarget = NewObject<UCanvasRenderTarget2D>();
+	RenderTarget = NewObject<UCanvasRenderTarget2D>(this, TEXT("RenderTarget"));
 	RenderTarget->ResizeTarget(GSystemResolution.ResX, GSystemResolution.ResY);
 
 	// clear render target
@@ -17,35 +17,45 @@ AMagicHUD::AMagicHUD()
 	UKismetRenderingLibrary::ClearRenderTarget2D(GetWorld(), RenderTarget, RenderTarget->ClearColor);
 
 	// make base dynamic material
-	BaseDynMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, this);
+	BaseDynMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, this, TEXT("BaseDynamicMaterial"));
 	BaseDynMaterial->SetTextureParameterValue("render_target", RenderTarget);
 
-	LineDynMaterial = UMaterialInstanceDynamic::Create(LineMaterial, this);
-	RunDraw();
+	LineDynMaterial = UMaterialInstanceDynamic::Create(LineMaterial, this, TEXT("LineDynamicMaterial"));
+	//RunDraw();
 }
 
 void AMagicHUD::Tick(float DeltaTime)
 {
 	RenderTarget->UpdateResource();
+	this->PostRender();
 }
 
-void AMagicHUD::RunDraw()
+void AMagicHUD::DrawHUD()
 {
-	UCanvas* pCanvas;
-	FVector2D Size;
-	FDrawToRenderTargetContext Context;
-
-	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(GetWorld(), RenderTarget, pCanvas, Size, Context);
-
-	//UKismetRenderingLibrary::mater
-
+	FVector2D Size = FVector2D(Canvas->SizeX, Canvas->SizeY);
 	FVector2D Pos = Size / 2;
-
-	pCanvas->K2_DrawMaterial(LineDynMaterial, Pos, FVector2D(50,50), FVector2D(0, 0));
-
-
-	UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), Context);
+	Canvas->K2_DrawMaterial(LineDynMaterial, Pos, FVector2D(50, 50), FVector2D(0, 0));
 }
+
+//void AMagicHUD::RunDraw()
+//{
+//	UCanvas* pCanvas;
+//	FVector2D Size;
+//	FDrawToRenderTargetContext Context;
+//
+//	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(GetWorld(), RenderTarget, pCanvas, Size, Context);
+//
+//	this->Canvas;
+//
+//	//UKismetRenderingLibrary::mater
+//
+//	FVector2D Pos = Size / 2;
+//
+//	pCanvas->K2_DrawMaterial(LineDynMaterial, Pos, FVector2D(50,50), FVector2D(0, 0));
+//
+//
+//	UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), Context);
+//}
 
 
 

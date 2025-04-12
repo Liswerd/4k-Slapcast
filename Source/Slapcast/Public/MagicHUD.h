@@ -21,6 +21,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual	void DrawHUD() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* BaseMaterial;
 
@@ -29,7 +31,8 @@ public:
 
 private:
 
-	void RunDraw();
+	//void RunDraw();
+
 
 	UCanvasRenderTarget2D* RenderTarget;
 	UMaterialInstanceDynamic* BaseDynMaterial;
