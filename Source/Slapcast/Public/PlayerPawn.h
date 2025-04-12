@@ -35,8 +35,8 @@ public:
 	// Called to move the player
 	void Move(const FInputActionValue& InputActionValue);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USceneComponent* Root;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* Root;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCapsuleComponent* Collision;
