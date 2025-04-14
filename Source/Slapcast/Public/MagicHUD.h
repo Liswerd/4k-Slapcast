@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include <Engine/CanvasRenderTarget2D.h>
+//#include <Engine/CanvasRenderTarget2D.h>
 
 #include "MagicHUD.generated.h"
 
@@ -19,19 +19,26 @@ class SLAPCAST_API AMagicHUD : public AHUD
 public:
 	AMagicHUD();
 
-	virtual void Tick(float DeltaTime) override;
-
 	virtual	void DrawHUD() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterialInterface* BaseMaterial;
+	float GetWidth();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* LineMaterial;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LineWidthPercentage;
+
 protected:
-	//UCanvasRenderTarget2D* RenderTarget;
-	//UMaterialInstanceDynamic* BaseDynMaterial;
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY()
 	UMaterialInstanceDynamic* LineDynMaterial;
 
+private:
+	void DrawLines(TArray<FVector2D>& Line);
+	void ComputeLineTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Start, FVector2D End);
+
 };
+

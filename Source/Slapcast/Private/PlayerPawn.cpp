@@ -3,6 +3,7 @@
 
 #include "PlayerPawn.h"
 
+
 // Sets default values
 APlayerPawn::APlayerPawn()
 {
@@ -23,6 +24,8 @@ APlayerPawn::APlayerPawn()
 	Mesh->SetupAttachment(RootComponent);
 	//Collision->SetupAttachment(RootComponent);
 	Camera->SetupAttachment(RootComponent);
+
+
 }
 
 // Called when the game starts or when spawned

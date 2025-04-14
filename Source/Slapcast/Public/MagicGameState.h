@@ -6,9 +6,9 @@
 #include "GameFramework/GameStateBase.h"
 #include "MagicGameState.generated.h"
 
-class Drawing {
-
-};
+//class Drawing {
+//
+//};
 
 /**
  * 
@@ -18,16 +18,24 @@ class SLAPCAST_API AMagicGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
-	void StartDraw() {
+public:
+	void StartDraw();
+	void TickPoint(FVector2D pos);
+	void EndDraw();
 
-	}
+	TArray<FVector2D> GetLine();
 
-	void EndDraw() {
-
-	}
-
-	void Draw() {
-
-	}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GridWidthPercentage;
 	
+protected:
+	UPROPERTY()
+	FVector2D StartPos;
+	UPROPERTY()
+	FVector2D MousePos;
+	UPROPERTY()
+	TArray<FIntVector2> Points;
+	UPROPERTY()
+	bool bIsDrawing = false;
+
 };
