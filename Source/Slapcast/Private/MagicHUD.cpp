@@ -101,7 +101,6 @@ void AMagicHUD::DrawLines(TArray<FVector2D>& Line)
 		ComputeLineTriangles(Triangles, Line[j] * GetWidth(), Line[j + 1] * GetWidth());
 	}
 
-
 	Canvas->K2_DrawMaterialTriangle(LineDynMaterial, Triangles);
 }
 

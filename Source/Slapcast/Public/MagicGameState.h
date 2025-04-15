@@ -23,17 +23,20 @@ public:
 	void TickPoint(FVector2D pos);
 	void EndDraw();
 
-	void AddDotSquare(FIntVector2 pos);
-
 	TArray<FVector2D> GetLine();
 	TArray<FVector2D> GetDots();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GridWidthPercentage;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DotWidthPercentage;
+
 protected:
 	UPROPERTY()
 	FVector2D StartPos;
+	UPROPERTY()
+	FVector2D EndPos;
 	UPROPERTY()
 	FVector2D MousePos;
 	//UPROPERTY()
@@ -47,4 +50,11 @@ protected:
 	UPROPERTY()
 	bool bIsDrawing = false;
 
+
+private:
+	void TickDotCollision();
+	FIntVector2 CheckDotsAroundCollsion(FIntVector2 LineStart);
+	bool CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos);
+	void AddDotSquare(FIntVector2 Pos);
+	//static bool CheckCircleLineCollsion(FVector2D start, FVector2D end, FVector2D DotPos, );
 };
