@@ -27,7 +27,13 @@ public:
 	UMaterialInterface* LineMaterial;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInterface* DotMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float LineWidthPercentage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DotPercentage;
 
 protected:
 	virtual void BeginPlay() override;
@@ -35,10 +41,15 @@ protected:
 
 	UPROPERTY()
 	UMaterialInstanceDynamic* LineDynMaterial;
+	UPROPERTY()
+	UMaterialInstanceDynamic* DotDynMaterial;
 
 private:
+	void DrawDots(TArray<FVector2D>& Dots);
+	void ComputeDotTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Point);
 	void DrawLines(TArray<FVector2D>& Line);
 	void ComputeLineTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Start, FVector2D End);
+	void AddTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Points[], uint32 Length);
 
 };
 

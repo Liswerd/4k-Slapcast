@@ -34,7 +34,8 @@ AMagicHUD::AMagicHUD()
 void AMagicHUD::BeginPlay()
 {
 	LineDynMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), LineMaterial, TEXT("LineDynamicMaterial"));
-	FString a = LineDynMaterial->GetName();
+	DotDynMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), DotMaterial, TEXT("DotDynamicMaterial"));
+	//FString a = LineDynMaterial->GetName();
 	//UE_LOG(LogTemp, Warning, TEXT("text: %s"), *a);
 }
 
@@ -51,8 +52,12 @@ void AMagicHUD::DrawHUD()
 	//UE_LOG(LogTemp, Warning, TEXT("text: %s"), view);
 	//FVector2D Size = GetCanvasSize();
 	//FVector2D Pos = Size / 2;
-	TArray<FVector2D> Line = GetWorld()->GetGameState<AMagicGameState>()->GetLine();
+	AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
 
+	TArray<FVector2D> Dots = GameState->GetDots();
+	DrawDots(Dots);
+
+	TArray<FVector2D> Line = GameState->GetLine();
 	DrawLines(Line);
 }
 
@@ -61,6 +66,32 @@ float AMagicHUD::GetWidth()
 	FVector2D Size;
 	GEngine->GameViewport->GetViewportSize(Size);
 	return Size.X;
+}
+
+void AMagicHUD::DrawDots(TArray<FVector2D>& Dots)
+{
+	TArray<FCanvasUVTri> Triangles;
+	for (int32 j = 0; j < Dots.Num(); j++) {
+		ComputeDotTriangles(Triangles, Dots[j] * GetWidth());
+	}
+	Canvas->K2_DrawMaterialTriangle(DotDynMaterial, Triangles);
+}
+
+void AMagicHUD::ComputeDotTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Point)
+{
+	FVector2D points[8]{};
+
+	for (int y = 0; y < 2; y++) {
+		for (int x = 0; x < 2; x++) {
+			FVector2D pos(x * 2 - 1, y * 2 - 1);
+			points[y * 4 + x * 2 + 0] = Point + pos * DotPercentage / 2 * GetWidth();
+			points[y * 4 + x * 2 + 1] = pos;
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("point: %s"), *Point.ToString());
+
+	// add triangle (strip-wise)
+	AddTriangles(Triangles, points, 8);
 }
 
 void AMagicHUD::DrawLines(TArray<FVector2D>& Line)
@@ -84,7 +115,7 @@ void AMagicHUD::ComputeLineTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D 
 
 	FVector2D ortho_dir = FVector2D(-dir.Y, dir.X);
 
-	float half_width = LineWidthPercentage * Canvas->SizeX;
+	float half_width = LineWidthPercentage * GetWidth();
 
 	// make points 
 	// [pos0, uv0, pos1, uv1,..]
@@ -110,14 +141,21 @@ void AMagicHUD::ComputeLineTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D 
 	}
 
 	// add triangle (strip-wise)
-	for (int32 j = 0; j < 6; j++) {
+	AddTriangles(Triangles, points, 16);
+}
+
+void AMagicHUD::AddTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Points[], uint32 Length)
+{
+	// add triangle (strip-wise)
+	uint32 num_triangles = Length / 2 - 2;
+	for (uint32 j = 0; j < num_triangles; j++) {
 		FCanvasUVTri tri;
-		tri.V0_Pos = points[j * 2 + 0];
-		tri.V0_UV = points[j * 2 + 1];
-		tri.V1_Pos = points[j * 2 + 2];
-		tri.V1_UV = points[j * 2 + 3];
-		tri.V2_Pos = points[j * 2 + 4];
-		tri.V2_UV = points[j * 2 + 5];
+		tri.V0_Pos = Points[j * 2 + 0];
+		tri.V0_UV = Points[j * 2 + 1];
+		tri.V1_Pos = Points[j * 2 + 2];
+		tri.V1_UV = Points[j * 2 + 3];
+		tri.V2_Pos = Points[j * 2 + 4];
+		tri.V2_UV = Points[j * 2 + 5];
 
 		Triangles.Push(tri);
 	}

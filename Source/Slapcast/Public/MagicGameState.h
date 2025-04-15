@@ -23,7 +23,10 @@ public:
 	void TickPoint(FVector2D pos);
 	void EndDraw();
 
+	void AddDotSquare(FIntVector2 pos);
+
 	TArray<FVector2D> GetLine();
+	TArray<FVector2D> GetDots();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GridWidthPercentage;
@@ -33,8 +36,14 @@ protected:
 	FVector2D StartPos;
 	UPROPERTY()
 	FVector2D MousePos;
+	//UPROPERTY()
+	//TArray<FVector2D> LineArray;
+	//UPROPERTY()
+	//TArray<FVector2D> DotArray;
 	UPROPERTY()
-	TArray<FIntVector2> Points;
+	TArray<FIntVector2> ShapePoints;
+	UPROPERTY()
+	TSet<FIntVector2> ShownDots;
 	UPROPERTY()
 	bool bIsDrawing = false;
 
