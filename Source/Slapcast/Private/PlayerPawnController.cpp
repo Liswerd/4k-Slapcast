@@ -5,30 +5,31 @@
 #include "EnhancedInputSubSystems.h"
 #include "EnhancedInputComponent.h"
 #include "PlayerPawn.h"
+#include "MagicGameState.h"
+
 
 void APlayerPawnController::BeginPlay()
 {
 	//Call the superclass method for BeginPlay() so Unreal knows to include this as part of the list of objects doing stuff
 	Super::BeginPlay();
-
-	//checkf makes sure the IMC and MoveAction are set in the Details pane in Unreal Editor. If not, it'll (intentionally) crash Unreal at this line.
-	checkf(InputMappingContext, TEXT("InputMappingContext is not set in %s"), *GetNameSafe(this));
-	checkf(MoveAction, TEXT("MoveAction is not set in %s"), *GetNameSafe(this));
+	this->SetShowMouseCursor(true);
 
 	//Get a pointer to the EnhancedInputSubsystem
 	TObjectPtr<UEnhancedInputLocalPlayerSubsystem> EnhancedInputSubsystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	//Add the IMC to the EnhancedInputSubsystem
-	if (EnhancedInputSubsystem) {
-		EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
-	}
+	//if (EnhancedInputSubsystem) {
+	EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
+	//}
 }
 
-void APlayerPawnController::Move(const FInputActionValue& InputActionValue)
+void APlayerPawnController::Tick(float DeltaSeconds)
 {
-	if (APlayerPawn* ControlPawn = GetPawn<APlayerPawn>())
-	{
-		//GEngine->AddOnScreenDebugMessage(0, 3.0f, FColor::Green, FString(ControlPawn->GetName()));
-		ControlPawn->Move(InputActionValue);
+	AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	FVector2D MousePos;
+	// if mouse is on screen, tick Gamestate
+	if (GetMousePosition(MousePos.X, MousePos.Y)) {
+
+		GameState->TickPoint(MousePos / GetHUD<AMagicHUD>()->GetWidth());
 	}
 }
 
@@ -42,4 +43,35 @@ void APlayerPawnController::SetupInputComponent()
 
 	//Bind the MoveAction to the Move method
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerPawnController::Move);
+	//EnhancedInputComponent->BindAction(MouseAction, ETriggerEvent::Triggered, this, &APlayerPawnController::MouseMove);
+	EnhancedInputComponent->BindAction(ButtonAction, ETriggerEvent::Triggered, this, &APlayerPawnController::Click);
+}
+
+void APlayerPawnController::Move(const FInputActionValue& InputActionValue)
+{
+	APlayerPawn* ControlPawn = GetPawn<APlayerPawn>();
+
+		ControlPawn->Move(InputActionValue);
+}
+
+void APlayerPawnController::MouseMove(const FInputActionValue& InputActionValue)
+{
+	AMagicGameState* GameState=GetWorld()->GetGameState<AMagicGameState>();
+	FVector2D MousePos = InputActionValue.Get<FVector2D>();
+	UE_LOG(LogTemp, Warning, TEXT("mouse pos: %f %f"), MousePos.X, MousePos.Y);
+	//GameState->TickPoint(MousePos / GetHUD<AMagicHUD>()->GetCanvasWidth());
+
+}
+
+void APlayerPawnController::Click(const FInputActionValue& InputActionValue)
+{
+	AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	bool is_down = InputActionValue.Get<bool>();
+	UE_LOG(LogTemp, Warning, TEXT("moise down: %i"), is_down);
+	if (is_down) {
+		GameState->StartDraw();
+	}
+	else {
+		GameState->EndDraw();
+	}
 }
