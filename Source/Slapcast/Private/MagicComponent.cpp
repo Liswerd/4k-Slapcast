@@ -1,9 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MagicGameState.h"
+#include "MagicComponent.h"
 
-void AMagicGameState::StartDraw()
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+//#include "MagicGameState.h"
+
+void UMagicComponent::StartDraw()
 {
 	bIsDrawing = true;
 
@@ -28,7 +33,7 @@ void AMagicGameState::StartDraw()
 	AddDotSquare(FIntVector2(1, -1));*/
 
 }
-void AMagicGameState::TickPoint(FVector2D NewMousePos)
+void UMagicComponent::TickPoint(FVector2D NewMousePos)
 {
 	MousePos = NewMousePos;
 	if (bIsDrawing) {
@@ -37,14 +42,14 @@ void AMagicGameState::TickPoint(FVector2D NewMousePos)
 	}
 }
 
-void AMagicGameState::EndDraw()
+void UMagicComponent::EndDraw()
 {
 	bIsDrawing = false;
 	// check shape
 }
 
 
-TArray<FVector2D> AMagicGameState::GetLine()
+TArray<FVector2D> UMagicComponent::GetLine()
 {
 	TArray<FVector2D> Line;
 	for (int j = 0; j < ShapePoints.Num(); j++) {
@@ -54,7 +59,7 @@ TArray<FVector2D> AMagicGameState::GetLine()
 	return Line;
 }
 
-TArray<FVector2D> AMagicGameState::GetDots()
+TArray<FVector2D> UMagicComponent::GetDots()
 {
 	TArray<FVector2D> Dots;
 
@@ -67,7 +72,7 @@ TArray<FVector2D> AMagicGameState::GetDots()
 
 
 
-void AMagicGameState::TickDotCollision()
+void UMagicComponent::TickDotCollision()
 {
 	FIntVector2 LineStart = ShapePoints.Last();
 	FIntVector2 DotCollison = CheckDotsAroundCollsion(LineStart);
@@ -91,7 +96,7 @@ void AMagicGameState::TickDotCollision()
 	}
 }
 
-FIntVector2 AMagicGameState::CheckDotsAroundCollsion(FIntVector2 LineStart)
+FIntVector2 UMagicComponent::CheckDotsAroundCollsion(FIntVector2 LineStart)
 {
 	for (int y = -1; y <= 1; y++) {
 		for (int x = -1; x <= 1; x++) {
@@ -105,7 +110,7 @@ FIntVector2 AMagicGameState::CheckDotsAroundCollsion(FIntVector2 LineStart)
 	return FIntVector2::ZeroValue;
 }
 
-bool AMagicGameState::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos)
+bool UMagicComponent::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos)
 {
 	/*
 		https://stackoverflow.com/a/1084899/9406364
@@ -177,7 +182,7 @@ bool AMagicGameState::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 Do
 	}
 }
 
-void AMagicGameState::AddDotSquare(FIntVector2 pos)
+void UMagicComponent::AddDotSquare(FIntVector2 pos)
 {
 	for (int y = -1; y <= 1; y++) {
 		for (int x = -1; x <= 1; x++) {

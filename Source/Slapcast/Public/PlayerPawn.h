@@ -14,6 +14,8 @@
 
 //#include <SkeletalMeshAdapter.h>
 //#include <Engine/SkeletalMeshComponent.h>
+#include "MagicComponent.h"
+
 #include "PlayerPawn.generated.h"
 
 
@@ -47,11 +49,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCameraComponent* Camera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMagicComponent* Magic;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
 	UFloatingPawnMovement* PawnMovement;
 
 };

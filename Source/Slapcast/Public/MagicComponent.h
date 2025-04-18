@@ -3,21 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameStateBase.h"
-#include "MagicGameState.generated.h"
+#include "Components/ActorComponent.h"
 
-//class Drawing {
-//
-//};
+#include "MagicComponent.generated.h"
 
-/**
- * 
- */
-UCLASS()
-class SLAPCAST_API AMagicGameState : public AGameStateBase
+
+UCLASS( )
+class SLAPCAST_API UMagicComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:	
+	// Sets default values for this component's properties
+	//UMagicComponent();
 public:
 	void StartDraw();
 	void TickPoint(FVector2D pos);
@@ -28,7 +26,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GridWidthPercentage;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DotWidthPercentage;
 
@@ -56,5 +54,14 @@ private:
 	FIntVector2 CheckDotsAroundCollsion(FIntVector2 LineStart);
 	bool CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos);
 	void AddDotSquare(FIntVector2 Pos);
-	//static bool CheckCircleLineCollsion(FVector2D start, FVector2D end, FVector2D DotPos, );
+
+//protected:
+//	// Called when the game starts
+//	virtual void BeginPlay() override;
+//
+//public:	
+//	// Called every frame
+//	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+		
 };
