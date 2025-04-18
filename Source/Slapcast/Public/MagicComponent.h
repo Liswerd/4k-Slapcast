@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
+#include "MagicSkill.h"
 #include "MagicComponent.generated.h"
 
 
@@ -30,6 +31,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DotWidthPercentage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UMagicSkill*> Skills;
+
+
 protected:
 	UPROPERTY()
 	FVector2D StartPos;
@@ -54,6 +59,7 @@ private:
 	FIntVector2 CheckDotsAroundCollsion(FIntVector2 LineStart);
 	bool CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos);
 	void AddDotSquare(FIntVector2 Pos);
+
 
 //protected:
 //	// Called when the game starts

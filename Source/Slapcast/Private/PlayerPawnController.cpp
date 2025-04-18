@@ -25,10 +25,13 @@ void APlayerPawnController::BeginPlay()
 void APlayerPawnController::Tick(float DeltaSeconds)
 {
 	//AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	APlayerPawn* PlayerPawn = GetPawn<APlayerPawn>();
 	FVector2D MousePos;
 	// if mouse is on screen, tick Gamestate
 	if (GetMousePosition(MousePos.X, MousePos.Y)) {
-		GetPawn<APlayerPawn>()->Magic->TickPoint(MousePos / GetHUD<AMagicHUD>()->GetWidth());
+		PlayerPawn->Magic->TickPoint(MousePos / GetHUD<AMagicHUD>()->GetWidth());
+		PlayerPawn->ExecMove(MousePos / GetHUD<AMagicHUD>()->GetWidth());
+
 	}
 }
 

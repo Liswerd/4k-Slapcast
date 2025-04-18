@@ -37,6 +37,9 @@ public:
 	// Called to move the player
 	void Move(const FInputActionValue& InputActionValue);
 
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Tick Cast Move"))
+	void ExecMove(FVector2D Position);
+
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;*/
 

@@ -9,8 +9,8 @@
 /**
  *
  */
-UCLASS(BlueprintType, Blueprintable)
-class SLAPCAST_API AMagicSkill : public AActor
+UCLASS(BlueprintType, Blueprintable, BlueprintType)
+class SLAPCAST_API UMagicSkill : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -19,6 +19,6 @@ public:
 	TArray<FVector2D> Shape;
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnCast"))
-	void RecieveCast(FVector2D start, FVector2D end);
+	void ExecCast(FVector2D start, FVector2D end);
 
 };
