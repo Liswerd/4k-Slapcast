@@ -6,7 +6,8 @@
 #include <Kismet/KismetMaterialLibrary.h>
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
-#include "MagicGameState.h"
+//#include "MagicGameState.h"
+#include "PlayerPawn.h"
 
 
 AMagicHUD::AMagicHUD()
@@ -52,7 +53,7 @@ void AMagicHUD::DrawHUD()
 	//UE_LOG(LogTemp, Warning, TEXT("text: %s"), view);
 	//FVector2D Size = GetCanvasSize();
 	//FVector2D Pos = Size / 2;
-	AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	UMagicComponent* GameState = ((APlayerPawn*)GetOwningPawn())->Magic;
 
 	TArray<FVector2D> Dots = GameState->GetDots();
 	DrawDots(Dots);

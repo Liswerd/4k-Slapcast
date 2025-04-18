@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* DotMaterial;
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//UMaterialInterface* DotMaterial;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float LineWidthPercentage;
 

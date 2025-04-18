@@ -14,6 +14,8 @@
 
 //#include <SkeletalMeshAdapter.h>
 //#include <Engine/SkeletalMeshComponent.h>
+#include "MagicComponent.h"
+
 #include "PlayerPawn.generated.h"
 
 
@@ -35,6 +37,9 @@ public:
 	// Called to move the player
 	void Move(const FInputActionValue& InputActionValue);
 
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Tick Cast Move"))
+	void ExecMove(FVector2D Position);
+
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;*/
 
@@ -47,11 +52,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCameraComponent* Camera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMagicComponent* Magic;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
 	UFloatingPawnMovement* PawnMovement;
 
 };

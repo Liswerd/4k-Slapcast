@@ -5,7 +5,7 @@
 #include "EnhancedInputSubSystems.h"
 #include "EnhancedInputComponent.h"
 #include "PlayerPawn.h"
-#include "MagicGameState.h"
+//#include "MagicGameState.h"
 
 
 void APlayerPawnController::BeginPlay()
@@ -24,12 +24,14 @@ void APlayerPawnController::BeginPlay()
 
 void APlayerPawnController::Tick(float DeltaSeconds)
 {
-	AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	//AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	APlayerPawn* PlayerPawn = GetPawn<APlayerPawn>();
 	FVector2D MousePos;
 	// if mouse is on screen, tick Gamestate
 	if (GetMousePosition(MousePos.X, MousePos.Y)) {
+		PlayerPawn->Magic->TickPoint(MousePos / GetHUD<AMagicHUD>()->GetWidth());
+		PlayerPawn->ExecMove(MousePos / GetHUD<AMagicHUD>()->GetWidth());
 
-		GameState->TickPoint(MousePos / GetHUD<AMagicHUD>()->GetWidth());
 	}
 }
 
@@ -51,27 +53,28 @@ void APlayerPawnController::Move(const FInputActionValue& InputActionValue)
 {
 	APlayerPawn* ControlPawn = GetPawn<APlayerPawn>();
 
-		ControlPawn->Move(InputActionValue);
+	ControlPawn->Move(InputActionValue);
 }
 
 void APlayerPawnController::MouseMove(const FInputActionValue& InputActionValue)
 {
-	AMagicGameState* GameState=GetWorld()->GetGameState<AMagicGameState>();
-	FVector2D MousePos = InputActionValue.Get<FVector2D>();
-	UE_LOG(LogTemp, Warning, TEXT("mouse pos: %f %f"), MousePos.X, MousePos.Y);
+	//AMagicGameState* GameState=GetWorld()->GetGameState<AMagicGameState>();
+	//FVector2D MousePos = InputActionValue.Get<FVector2D>();
+	//UE_LOG(LogTemp, Warning, TEXT("mouse pos: %f %f"), MousePos.X, MousePos.Y);
 	//GameState->TickPoint(MousePos / GetHUD<AMagicHUD>()->GetCanvasWidth());
 
 }
 
 void APlayerPawnController::Click(const FInputActionValue& InputActionValue)
 {
-	AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	//AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
+	UMagicComponent* MagicComponent = GetPawn<APlayerPawn>()->Magic;
 	bool is_down = InputActionValue.Get<bool>();
 	UE_LOG(LogTemp, Warning, TEXT("moise down: %i"), is_down);
 	if (is_down) {
-		GameState->StartDraw();
+		MagicComponent->StartDraw();
 	}
 	else {
-		GameState->EndDraw();
+		MagicComponent->EndDraw();
 	}
 }
