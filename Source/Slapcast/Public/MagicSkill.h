@@ -9,7 +9,7 @@
 /**
  *
  */
-UCLASS(BlueprintType, Blueprintable, BlueprintType)
+UCLASS(BlueprintType, Blueprintable)//, BlueprintType)
 class SLAPCAST_API UMagicSkill : public UActorComponent
 {
 	GENERATED_BODY()
