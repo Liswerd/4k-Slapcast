@@ -32,14 +32,14 @@ public:
 	float DotWidthPercentage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UMagicSkill*> Skills;
+	TArray<UMagicSkill*> Spells;
 
 
 protected:
 	UPROPERTY()
 	FVector2D StartPos;
-	UPROPERTY()
-	FVector2D EndPos;
+	//UPROPERTY()
+	//FVector2D EndPos;
 	UPROPERTY()
 	FVector2D MousePos;
 	//UPROPERTY()
@@ -49,7 +49,8 @@ protected:
 	UPROPERTY()
 	TArray<FIntVector2> ShapePoints;
 	UPROPERTY()
-	TSet<FIntVector2> ShownDots;
+	//map between dot position and number of reference count
+	TMap<FIntVector2, uint64> ShownDots;
 	UPROPERTY()
 	bool bIsDrawing = false;
 
@@ -59,6 +60,7 @@ private:
 	FIntVector2 CheckDotsAroundCollsion(FIntVector2 LineStart);
 	bool CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos);
 	void AddDotSquare(FIntVector2 Pos);
+	void RemoveDotSquare(FIntVector2 Pos);
 
 
 //protected:

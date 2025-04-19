@@ -19,25 +19,16 @@ void UMagicComponent::StartDraw()
 	ShownDots.Empty();
 
 
-	EndPos = StartPos = MousePos;
+	StartPos = MousePos;
 	ShapePoints.Push(FIntVector2::ZeroValue);
 	AddDotSquare(FIntVector2::ZeroValue);
-
-	/*ShapePoints.Push(FIntVector2(1, 1));
-	AddDotSquare(FIntVector2(1, 1));
-
-	ShapePoints.Push(FIntVector2(1, 0));
-	AddDotSquare(FIntVector2(1, 0));
-
-	ShapePoints.Push(FIntVector2(1, -1));
-	AddDotSquare(FIntVector2(1, -1));*/
 
 }
 void UMagicComponent::TickPoint(FVector2D NewMousePos)
 {
 	MousePos = NewMousePos;
 	if (bIsDrawing) {
-		EndPos = MousePos;
+		//EndPos = MousePos;
 		TickDotCollision();
 	}
 }
@@ -45,7 +36,9 @@ void UMagicComponent::TickPoint(FVector2D NewMousePos)
 void UMagicComponent::EndDraw()
 {
 	bIsDrawing = false;
-	// check shape
+	if (ShapePoints.Num() == 1) {
+		ShownDots.Empty();
+	}
 }
 
 
@@ -55,7 +48,8 @@ TArray<FVector2D> UMagicComponent::GetLine()
 	for (int j = 0; j < ShapePoints.Num(); j++) {
 		Line.Push(FVector2D(ShapePoints[j].X, ShapePoints[j].Y) * GridWidthPercentage + StartPos);
 	}
-	Line.Push(EndPos);
+	if (bIsDrawing)
+		Line.Push(MousePos);
 	return Line;
 }
 
@@ -63,9 +57,9 @@ TArray<FVector2D> UMagicComponent::GetDots()
 {
 	TArray<FVector2D> Dots;
 
-	TSet<FIntVector2>::TConstIterator Iter = ShownDots.CreateConstIterator();
+	TMap<FIntVector2, uint64>::TConstIterator Iter = ShownDots.CreateConstIterator();
 	for (; Iter; ++Iter) {
-		Dots.Push(FVector2D(Iter->X, Iter->Y) * GridWidthPercentage + StartPos);
+		Dots.Push(FVector2D(Iter.Key().X, Iter.Key().Y) * GridWidthPercentage + StartPos);
 	}
 	return Dots;
 }
@@ -84,6 +78,7 @@ void UMagicComponent::TickDotCollision()
 		if (ShapePoints.Num() >= 2) {
 			FIntVector2 LastLineStart = ShapePoints.Last(1);
 			if (LastLineStart == NewPoint) {
+				RemoveDotSquare(LineStart);
 				ShapePoints.Pop();
 				should_add_point = false;
 			}
@@ -123,7 +118,7 @@ bool UMagicComponent::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 Do
 	*/
 
 
-	FVector2D L = EndPos;
+	FVector2D L = MousePos;
 	FVector2D E = FVector2D(LineStart.X, LineStart.Y) * GridWidthPercentage + StartPos;
 	FVector2D C = FVector2D(DotPos.X, DotPos.Y) * GridWidthPercentage + StartPos;
 	float r = DotWidthPercentage;
@@ -182,11 +177,24 @@ bool UMagicComponent::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 Do
 	}
 }
 
-void UMagicComponent::AddDotSquare(FIntVector2 pos)
+void UMagicComponent::AddDotSquare(FIntVector2 Pos)
 {
 	for (int y = -1; y <= 1; y++) {
 		for (int x = -1; x <= 1; x++) {
-			ShownDots.Add(pos + FIntVector2(x, y));
+			ShownDots.FindOrAdd(Pos + FIntVector2(x, y))++;
+		}
+	}
+}
+
+void UMagicComponent::RemoveDotSquare(FIntVector2 Pos)
+{
+	for (int y = -1; y <= 1; y++) {
+		for (int x = -1; x <= 1; x++) {
+			FIntVector2 Key = Pos + FIntVector2(x, y);
+			uint64* Val = ShownDots.Find(Key);
+			if (Val && -- (*Val) == 0) {
+				ShownDots.FindAndRemoveChecked(Key);
+			}
 		}
 	}
 }
