@@ -77,4 +77,5 @@ void APlayerPawnController::Click(const FInputActionValue& InputActionValue)
 	else {
 		MagicComponent->EndDraw();
 	}
+	GetHitResultUnderCursor
 }

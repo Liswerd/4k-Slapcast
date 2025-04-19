@@ -8,17 +8,27 @@
 #include "MagicSkill.h"
 #include "MagicComponent.generated.h"
 
+USTRUCT(BlueprintType)
+struct Shape {
+	GENERATED_BODY()
 
-UCLASS( )
+	UPROPERTY()
+	TArray<FIntVector2> Points;
+
+	UPROPERTY()
+	FVector SendPos;
+};
+
+UCLASS()
 class SLAPCAST_API UMagicComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	//UMagicComponent();
 public:
-	void StartDraw();
+	void StartDraw(FVector SendPos);
 	void TickPoint(FVector2D pos);
 	void EndDraw();
 
@@ -63,13 +73,13 @@ private:
 	void RemoveDotSquare(FIntVector2 Pos);
 
 
-//protected:
-//	// Called when the game starts
-//	virtual void BeginPlay() override;
-//
-//public:	
-//	// Called every frame
-//	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	//protected:
+	//	// Called when the game starts
+	//	virtual void BeginPlay() override;
+	//
+	//public:	
+	//	// Called every frame
+	//	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+
 };

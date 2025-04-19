@@ -8,7 +8,7 @@
 
 //#include "MagicGameState.h"
 
-void UMagicComponent::StartDraw()
+void UMagicComponent::StartDraw(FVector SendPos)
 {
 	bIsDrawing = true;
 
@@ -20,7 +20,7 @@ void UMagicComponent::StartDraw()
 
 
 	StartPos = MousePos;
-	ShapePoints.Push(FIntVector2::ZeroValue);
+	//ShapePoints.Push(FIntVector2::ZeroValue);
 	AddDotSquare(FIntVector2::ZeroValue);
 
 }
@@ -28,7 +28,6 @@ void UMagicComponent::TickPoint(FVector2D NewMousePos)
 {
 	MousePos = NewMousePos;
 	if (bIsDrawing) {
-		//EndPos = MousePos;
 		TickDotCollision();
 	}
 }
@@ -36,15 +35,17 @@ void UMagicComponent::TickPoint(FVector2D NewMousePos)
 void UMagicComponent::EndDraw()
 {
 	bIsDrawing = false;
-	if (ShapePoints.Num() == 1) {
-		ShownDots.Empty();
-	}
+	//if (ShapePoints.IsEmpty()) {
+	ShownDots.Empty();
+	//}
 }
 
 
 TArray<FVector2D> UMagicComponent::GetLine()
 {
 	TArray<FVector2D> Line;
+
+	Line.Push(StartPos);
 	for (int j = 0; j < ShapePoints.Num(); j++) {
 		Line.Push(FVector2D(ShapePoints[j].X, ShapePoints[j].Y) * GridWidthPercentage + StartPos);
 	}
@@ -64,19 +65,31 @@ TArray<FVector2D> UMagicComponent::GetDots()
 	return Dots;
 }
 
-
+FIntVector2 GetLastOrDefault(TArray<FIntVector2> Points, int32 IndexFromTheEnd = 0) {
+	FIntVector2 LineStart(0, 0);
+	if (Points.Num() > IndexFromTheEnd) {
+		LineStart = Points.Last(IndexFromTheEnd);
+	}
+	return LineStart;
+}
 
 void UMagicComponent::TickDotCollision()
 {
-	FIntVector2 LineStart = ShapePoints.Last();
+	FIntVector2 LineStart = GetLastOrDefault(ShapePoints, 0);
+	//ShapePoints.FindLast(LineStart);
 	FIntVector2 DotCollison = CheckDotsAroundCollsion(LineStart);
 	// not zero - changed point
 	if (!DotCollison.IsZero()) {
 		FIntVector2 NewPoint = LineStart + DotCollison;
 		bool should_add_point = true;
 		// check whether went back
-		if (ShapePoints.Num() >= 2) {
-			FIntVector2 LastLineStart = ShapePoints.Last(1);
+		if (ShapePoints.Num() >= 1) {
+			FIntVector2 LastLineStart = GetLastOrDefault(ShapePoints, 1);
+			// if has index -1
+			// else leave as default 0,0
+			if (ShapePoints.Num() >= 2) {
+				LastLineStart = ShapePoints.Last(1);
+			}
 			if (LastLineStart == NewPoint) {
 				RemoveDotSquare(LineStart);
 				ShapePoints.Pop();
