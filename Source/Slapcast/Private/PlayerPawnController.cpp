@@ -73,8 +73,9 @@ void APlayerPawnController::Click(const FInputActionValue& InputActionValue)
 	//UE_LOG(LogTemp, Warning, TEXT("moise down: %i"), is_down);
 	if (is_down) {
 		FHitResult HitResult;
-		GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel1, true, HitResult);
-		MagicComponent->StartDraw(HitResult.TraceEnd);
+		bool test = GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel1, true, HitResult);
+		UE_LOG(LogTemp, Warning, TEXT("Hit result: %s %i"), *HitResult.Location.ToString(), test);
+		MagicComponent->StartDraw(HitResult.Location);
 	}
 	else {
 		MagicComponent->EndDraw();
