@@ -53,13 +53,13 @@ void AMagicHUD::DrawHUD()
 	//UE_LOG(LogTemp, Warning, TEXT("text: %s"), view);
 	//FVector2D Size = GetCanvasSize();
 	//FVector2D Pos = Size / 2;
-	UMagicComponent* GameState = ((APlayerPawn*)GetOwningPawn())->Magic;
+	UMagicComponent& MagicComponent = *((APlayerPawn*)GetOwningPawn())->Magic;
 
-	TArray<FVector2D> Dots = GameState->GetDots();
-	DrawDots(Dots);
+	//TArray<FVector2D> Dots = MagicComponent->GetDots();
+	DrawDots(MagicComponent);
 
-	TArray<FVector2D> Line = GameState->GetLine();
-	DrawLines(Line);
+	//TArray<FVector2D> Line = MagicComponent->GetLine();
+	DrawShapes(MagicComponent);
 }
 
 float AMagicHUD::GetWidth()
@@ -69,11 +69,13 @@ float AMagicHUD::GetWidth()
 	return Size.X;
 }
 
-void AMagicHUD::DrawDots(TArray<FVector2D>& Dots)
+void AMagicHUD::DrawDots(UMagicComponent& MagicComponent)
 {
 	TArray<FCanvasUVTri> Triangles;
-	for (int32 j = 0; j < Dots.Num(); j++) {
-		ComputeDotTriangles(Triangles, Dots[j] * GetWidth());
+	FVector2D Position;
+	UMagicComponent::FDotIterator DotIterator = MagicComponent.GetDotIterator();
+	while (MagicComponent.GetDot(DotIterator, Position)) {
+		ComputeDotTriangles(Triangles, Position * GetWidth());
 	}
 	Canvas->K2_DrawMaterialTriangle(DotDynMaterial, Triangles);
 }
@@ -95,13 +97,27 @@ void AMagicHUD::ComputeDotTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D P
 	AddTriangles(Triangles, points, 8);
 }
 
-void AMagicHUD::DrawLines(TArray<FVector2D>& Line)
+void AMagicHUD::DrawShapes(UMagicComponent& MagicComponent)
+{
+	FShape* Shape;
+	for (int32 j = 0; MagicComponent.GetShape(Shape, j); j++) {
+		DrawShape(MagicComponent, Shape);
+	}
+}
+
+void AMagicHUD::DrawShape(UMagicComponent& MagicComponent, FShape* Shape)
 {
 	TArray<FCanvasUVTri> Triangles;
-	for (int32 j = 0; j < Line.Num() - 1; j++) {
-		ComputeLineTriangles(Triangles, Line[j] * GetWidth(), Line[j + 1] * GetWidth());
+	FVector2D Point1;
+	FVector2D Point2;
+	// SAFETY:  shapes should always have at least one point
+	MagicComponent.GetPoint(Point1, Shape, 0);
+	for (int32 j = 1; MagicComponent.GetPoint(Point2, Shape, j); j++) {
+		ComputeLineTriangles(Triangles, Point1 * GetWidth(), Point2 * GetWidth());
+		Point1 = Point2;
 	}
 
+	LineDynMaterial->SetScalarParameterValue("complete", (float)1);
 	Canvas->K2_DrawMaterialTriangle(LineDynMaterial, Triangles);
 }
 

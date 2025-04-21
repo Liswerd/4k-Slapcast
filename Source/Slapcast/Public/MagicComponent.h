@@ -5,18 +5,37 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
+#include "Containers/Deque.h"
 #include "MagicSkill.h"
+
 #include "MagicComponent.generated.h"
 
+
 USTRUCT(BlueprintType)
-struct Shape {
+struct FShape {
 	GENERATED_BODY()
+
+	FShape() {
+
+	}
+
+	FShape(FVector2D StartPosition, FVector SendPosition, FIntVector2 StartPoint) {
+		SendPos = SendPosition;
+		StartPos = StartPosition;
+		Points.Push(StartPoint);
+	}
 
 	UPROPERTY()
 	TArray<FIntVector2> Points;
 
 	UPROPERTY()
 	FVector SendPos;
+
+	UPROPERTY()
+	FVector2D StartPos;
+
+	UPROPERTY()
+	bool bSuccess = false;
 };
 
 UCLASS()
@@ -25,15 +44,21 @@ class SLAPCAST_API UMagicComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
-	//UMagicComponent();
+public:
+	using FDotIterator = TMap<FIntVector2, uint64>::TConstIterator;
+
 public:
 	void StartDraw(FVector SendPos);
 	void TickPoint(FVector2D pos);
 	void EndDraw();
 
-	TArray<FVector2D> GetLine();
-	TArray<FVector2D> GetDots();
+	//TArray<FVector2D> GetLine();
+	//TArray<FVector2D> GetDots();
+	FDotIterator GetDotIterator();
+	bool GetDot(FDotIterator& Iterator, FVector2D& Position);
+
+	bool GetShape(FShape*& Shape, int32 Index);
+	bool GetPoint(FVector2D& Position, FShape*& Shape, int32 Index);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GridWidthPercentage;
@@ -46,8 +71,8 @@ public:
 
 
 protected:
-	UPROPERTY()
-	FVector2D StartPos;
+	//UPROPERTY()
+	//FVector2D StartPos;
 	//UPROPERTY()
 	//FVector2D EndPos;
 	UPROPERTY()
@@ -56,8 +81,8 @@ protected:
 	//TArray<FVector2D> LineArray;
 	//UPROPERTY()
 	//TArray<FVector2D> DotArray;
-	UPROPERTY()
-	TArray<FIntVector2> ShapePoints;
+	//UPROPERTY()
+	TDeque<FShape> Shapes;
 	UPROPERTY()
 	//map between dot position and number of reference count
 	TMap<FIntVector2, uint64> ShownDots;
@@ -68,7 +93,7 @@ protected:
 private:
 	void TickDotCollision();
 	FIntVector2 CheckDotsAroundCollsion(FIntVector2 LineStart);
-	bool CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos);
+	bool CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos, FVector2D StartPos);
 	void AddDotSquare(FIntVector2 Pos);
 	void RemoveDotSquare(FIntVector2 Pos);
 

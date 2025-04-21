@@ -15,12 +15,15 @@ void UMagicComponent::StartDraw(FVector SendPos)
 	// clear all arrays
 	//LineArray.Empty();
 	//DotArray.Empty();
-	ShapePoints.Empty();
-	ShownDots.Empty();
+	/*Shapes.Empty();*/
+	if (Shapes.Num() > 0) {
+		Shapes.Last().bSuccess = true;
+	}
+	Shapes.PushLast(FShape(MousePos, SendPos, FIntVector2::ZeroValue));
+	//ShownDots.Empty();
 
 
-	StartPos = MousePos;
-	//ShapePoints.Push(FIntVector2::ZeroValue);
+	/*	StartPos = MousePos*/;
 	AddDotSquare(FIntVector2::ZeroValue);
 
 }
@@ -40,42 +43,84 @@ void UMagicComponent::EndDraw()
 	//}
 }
 
-
-TArray<FVector2D> UMagicComponent::GetLine()
+UMagicComponent::FDotIterator UMagicComponent::GetDotIterator()
 {
-	TArray<FVector2D> Line;
-
-	Line.Push(StartPos);
-	for (int j = 0; j < ShapePoints.Num(); j++) {
-		Line.Push(FVector2D(ShapePoints[j].X, ShapePoints[j].Y) * GridWidthPercentage + StartPos);
-	}
-	if (bIsDrawing)
-		Line.Push(MousePos);
-	return Line;
+	return ShownDots.CreateConstIterator();
 }
 
-TArray<FVector2D> UMagicComponent::GetDots()
+bool UMagicComponent::GetDot(FDotIterator& Iterator, FVector2D& Position)
 {
-	TArray<FVector2D> Dots;
-
-	TMap<FIntVector2, uint64>::TConstIterator Iter = ShownDots.CreateConstIterator();
-	for (; Iter; ++Iter) {
-		Dots.Push(FVector2D(Iter.Key().X, Iter.Key().Y) * GridWidthPercentage + StartPos);
+	bool ret = (bool)Iterator;
+	if (ret) {
+		//SAFTEY: Will always have current shape as: to have an iterator of dots, we must be drawing 
+		FShape& CurrShape = Shapes.Last();
+		Position = FVector2D(Iterator.Key().X, Iterator.Key().Y) * GridWidthPercentage + CurrShape.StartPos;
+		++Iterator;
 	}
-	return Dots;
+	return ret;
 }
 
-FIntVector2 GetLastOrDefault(TArray<FIntVector2> Points, int32 IndexFromTheEnd = 0) {
-	FIntVector2 LineStart(0, 0);
-	if (Points.Num() > IndexFromTheEnd) {
-		LineStart = Points.Last(IndexFromTheEnd);
+bool UMagicComponent::GetShape(FShape*& Shape, int32 Index)
+{
+	bool ret = Index < Shapes.Num();
+	if (ret) {
+		Shape = &Shapes[Index];
 	}
-	return LineStart;
+	return ret;
 }
+
+bool UMagicComponent::GetPoint(FVector2D& Position, FShape*& Shape, int32 Index)
+{
+	bool ret = Index < Shape->Points.Num();
+	if (ret) {
+		Position = FVector2D(Shape->Points[Index].X, Shape->Points[Index].Y) * GridWidthPercentage + Shape->StartPos;
+	}
+	else if (bIsDrawing && Shape == &Shapes[Shapes.Num() - 1] && Index == Shape->Points.Num()) {
+		Position = MousePos;
+		ret = true;
+	}
+
+	return ret;
+}
+
+
+//TArray<FVector2D> UMagicComponent::GetLine()
+//{
+//	TArray<FVector2D> Line;
+//
+//	Line.Push(StartPos);
+//	for (int j = 0; j < Shapes.Num(); j++) {
+//		Line.Push(FVector2D(Shapes[j].X, Shapes[j].Y) * GridWidthPercentage + StartPos);
+//	}
+//	if (bIsDrawing)
+//		Line.Push(MousePos);
+//	return Line;
+//}
+//
+//TArray<FVector2D> UMagicComponent::GetDots()
+//{
+//	TArray<FVector2D> Dots;
+//
+//	TMap<FIntVector2, uint64>::TConstIterator Iter = ShownDots.CreateConstIterator();
+//	for (; Iter; ++Iter) {
+//		Dots.Push(FVector2D(Iter.Key().X, Iter.Key().Y) * GridWidthPercentage + StartPos);
+//	}
+//	return Dots;
+//}
+
+
+//FIntVector2 GetLastOrDefault(TArray<FIntVector2>& Points, int32 IndexFromTheEnd = 0) {
+//	FIntVector2 LineStart(0, 0);
+//	if (Points.Num() > IndexFromTheEnd) {
+//		LineStart = Points.Last(IndexFromTheEnd);
+//	}
+//	return LineStart;
+//}
 
 void UMagicComponent::TickDotCollision()
 {
-	FIntVector2 LineStart = GetLastOrDefault(ShapePoints, 0);
+	TArray<FIntVector2>& Points = Shapes.Last().Points;
+	FIntVector2 LineStart = Points.Last();
 	//ShapePoints.FindLast(LineStart);
 	FIntVector2 DotCollison = CheckDotsAroundCollsion(LineStart);
 	// not zero - changed point
@@ -83,22 +128,22 @@ void UMagicComponent::TickDotCollision()
 		FIntVector2 NewPoint = LineStart + DotCollison;
 		bool should_add_point = true;
 		// check whether went back
-		if (ShapePoints.Num() >= 1) {
-			FIntVector2 LastLineStart = GetLastOrDefault(ShapePoints, 1);
+		if (Points.Num() >= 2) {
+			//FIntVector2 LastLineStart = GetLastOrDefault(Points, 1);
 			// if has index -1
 			// else leave as default 0,0
-			if (ShapePoints.Num() >= 2) {
-				LastLineStart = ShapePoints.Last(1);
-			}
+			//if (Shapes.Num() >= 2) {
+			FIntVector2 LastLineStart = Points.Last(1);
+			//}
 			if (LastLineStart == NewPoint) {
 				RemoveDotSquare(LineStart);
-				ShapePoints.Pop();
+				Points.Pop();
 				should_add_point = false;
 			}
 
 		}
 		if (should_add_point) {
-			ShapePoints.Push(NewPoint);
+			Points.Push(NewPoint);
 			AddDotSquare(NewPoint);
 		}
 	}
@@ -106,10 +151,12 @@ void UMagicComponent::TickDotCollision()
 
 FIntVector2 UMagicComponent::CheckDotsAroundCollsion(FIntVector2 LineStart)
 {
+	//SAFTEY: Will always have current shape as: to have an iterator of dots, we must be drawing 
+	FShape& CurrShape = Shapes.Last();
 	for (int y = -1; y <= 1; y++) {
 		for (int x = -1; x <= 1; x++) {
 			if (y != 0 || x != 0) {
-				if (CheckDotLineCollsion(LineStart, FIntVector2(x, y) + LineStart)) {
+				if (CheckDotLineCollsion(LineStart, FIntVector2(x, y) + LineStart, CurrShape.StartPos)) {
 					return FIntVector2(x, y);
 				}
 			}
@@ -118,7 +165,7 @@ FIntVector2 UMagicComponent::CheckDotsAroundCollsion(FIntVector2 LineStart)
 	return FIntVector2::ZeroValue;
 }
 
-bool UMagicComponent::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos)
+bool UMagicComponent::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos, FVector2D StartPos)
 {
 	/*
 		https://stackoverflow.com/a/1084899/9406364
