@@ -17,7 +17,7 @@ void UMagicComponent::StartDraw(FVector SendPos)
 	//DotArray.Empty();
 	/*Shapes.Empty();*/
 	if (Shapes.Num() > 0) {
-		Shapes.Last().bSuccess = true;
+		Shapes.Last().Points.Shrink();
 	}
 	Shapes.PushLast(FShape(MousePos, SendPos, FIntVector2::ZeroValue));
 	//ShownDots.Empty();
@@ -48,40 +48,65 @@ UMagicComponent::FDotIterator UMagicComponent::GetDotIterator()
 	return ShownDots.CreateConstIterator();
 }
 
-bool UMagicComponent::GetDot(FDotIterator& Iterator, FVector2D& Position)
+UMagicComponent::FShapeArray& UMagicComponent::GetShapeArray()
 {
-	bool ret = (bool)Iterator;
-	if (ret) {
-		//SAFTEY: Will always have current shape as: to have an iterator of dots, we must be drawing 
-		FShape& CurrShape = Shapes.Last();
-		Position = FVector2D(Iterator.Key().X, Iterator.Key().Y) * GridWidthPercentage + CurrShape.StartPos;
-		++Iterator;
-	}
-	return ret;
+	return Shapes;
 }
 
-bool UMagicComponent::GetShape(FShape*& Shape, int32 Index)
+//bool UMagicComponent::GetDot(FDotIterator& Iterator, FVector2D& Position)
+//{
+//	bool ret = (bool)Iterator;
+//	if (ret) {
+//		//SAFTEY: Will always have current shape as: to have an iterator of dots, we must be drawing 
+//		FShape& CurrShape = Shapes.Last();
+//		Position = FVector2D(Iterator.Key().X, Iterator.Key().Y) * GridWidthPercentage + CurrShape.StartPos;
+//		++Iterator;
+//	}
+//	return ret;
+//}
+
+//bool UMagicComponent::GetShape(FShape*& Shape, int32 Index)
+//{
+//	bool ret = Index < Shapes.Num();
+//	if (ret) {
+//		Shape = &Shapes[Index];
+//	}
+//	return ret;
+//}
+
+FVector2D UMagicComponent::GetDotPosition(FDotIterator& Iterator)
 {
-	bool ret = Index < Shapes.Num();
-	if (ret) {
-		Shape = &Shapes[Index];
-	}
-	return ret;
+	FIntVector2 Point = Iterator.Key();
+	//SAFTEY: Will always have current shape as: to have an iterator of dots, we must be drawing 
+	FShape& Shape = Shapes.Last();
+	return FVector2D(Point.X, Point.Y) * GridWidthPercentage + Shape.StartPos;
 }
 
-bool UMagicComponent::GetPoint(FVector2D& Position, FShape*& Shape, int32 Index)
-{
-	bool ret = Index < Shape->Points.Num();
-	if (ret) {
-		Position = FVector2D(Shape->Points[Index].X, Shape->Points[Index].Y) * GridWidthPercentage + Shape->StartPos;
-	}
-	else if (bIsDrawing && Shape == &Shapes[Shapes.Num() - 1] && Index == Shape->Points.Num()) {
-		Position = MousePos;
-		ret = true;
-	}
 
-	return ret;
+FVector2D UMagicComponent::GetPosition(FIntVector2 Point, FShape& Shape) const
+{
+	return  FVector2D(Point.X, Point.Y) * GridWidthPercentage + Shape.StartPos;
 }
+
+bool UMagicComponent::GetMousePosition(FVector2D& Position)
+{
+	Position = MousePos;
+	return bIsDrawing;
+}
+
+//bool UMagicComponent::GetPoint(FVector2D& Position, FShape*& Shape, int32 Index)
+//{
+//	bool ret = Index < Shape->Points.Num();
+//	if (ret) {
+//		Position = FVector2D(Shape->Points[Index].X, Shape->Points[Index].Y) * GridWidthPercentage + Shape->StartPos;
+//	}
+//	else if (bIsDrawing && Shape == &Shapes[Shapes.Num() - 1] && Index == Shape->Points.Num()) {
+//		Position = MousePos;
+//		ret = true;
+//	}
+//
+//	return ret;
+//}
 
 
 //TArray<FVector2D> UMagicComponent::GetLine()
@@ -145,6 +170,7 @@ void UMagicComponent::TickDotCollision()
 		if (should_add_point) {
 			Points.Push(NewPoint);
 			AddDotSquare(NewPoint);
+			TickShapeRecognizer();
 		}
 	}
 }
@@ -235,6 +261,62 @@ bool UMagicComponent::CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 Do
 		// no intn: FallShort, Past, CompletelyInside
 		return false;
 	}
+}
+
+void UMagicComponent::TickShapeRecognizer()
+{
+	FShape& Shape = Shapes.Last();
+	TArray<FIntVector2>& Points = Shape.Points;
+	for (int32 j = 0; j < Spells.Num(); j++) {
+		UMagicSkill& Spell = *Spells[j];
+		if (IsShapeEqual(Points, Spell)) {
+			FIntVector2 LastPoint = Points.Last();
+			int32 ShapePointCount = Spell.Shape.Num() + 1;
+			// Spell is not exactly complete -- need extra shape to hold extra points
+			if (Points.Num() != ShapePointCount) {
+				TArray<FIntVector2> NewPoints;
+				NewPoints.Append(Points.GetData() + Points.Num() - ShapePointCount, ShapePointCount);
+				//NewPoints.Shrink();
+				Shapes.PushLast(FShape(Shape.StartPos, Shape.SendPos, NewPoints));
+
+				Points.SetNum(Points.Num() - ShapePointCount + 1, false);
+				Points.Shrink();
+			}
+
+			FShape& NewShape = Shapes.Last();
+			NewShape.bSuccess = true;
+			NewShape.Points.Shrink();
+
+			// run the spell
+			FVector Start = GetOwner()->GetActorLocation() + FVector::UpVector * 45;
+			UE_LOG(LogTemp, Warning, TEXT("Cast Vector: %s %s"), *Start.ToString(), *Shape.SendPos.ToString());
+			Spell.ExecCast(Start, Shape.SendPos);
+
+			Shapes.PushLast(FShape(Shape.StartPos, Shape.SendPos, LastPoint));
+		}
+	}
+}
+
+bool UMagicComponent::IsShapeEqual(TArray<FIntVector2>& CurrShape, UMagicSkill& Spell)
+{
+	// current shape not long enough
+	int32 IndexOffset = CurrShape.Num() - Spell.Shape.Num() - 1;
+	if (IndexOffset < 0) {
+		return false;
+	}
+
+	FIntVector2 PointOffset = CurrShape[IndexOffset];
+	for (int32 j = 0; j < Spell.Shape.Num(); j++) {
+		auto Curr = CurrShape[j + IndexOffset + 1] - PointOffset;
+		auto Needed = Spell.Shape[j];
+		//UE_LOG(LogTemp, Warning, TEXT("Shape: %s %s"), *Curr.ToString(), *Needed.ToString());
+
+		if (Curr.X != Needed.X || Curr.Y != -Needed.Y) {
+			return false;
+		}
+	}
+	return true;
+
 }
 
 void UMagicComponent::AddDotSquare(FIntVector2 Pos)

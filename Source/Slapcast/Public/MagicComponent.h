@@ -25,6 +25,12 @@ struct FShape {
 		Points.Push(StartPoint);
 	}
 
+	FShape(FVector2D StartPosition, FVector SendPosition, TArray<FIntVector2> StartPoint) {
+		SendPos = SendPosition;
+		StartPos = StartPosition;
+		Points = StartPoint;
+	}
+
 	UPROPERTY()
 	TArray<FIntVector2> Points;
 
@@ -46,6 +52,7 @@ class SLAPCAST_API UMagicComponent : public UActorComponent
 public:
 public:
 	using FDotIterator = TMap<FIntVector2, uint64>::TConstIterator;
+	using FShapeArray = TDeque<FShape>;
 
 public:
 	void StartDraw(FVector SendPos);
@@ -55,10 +62,20 @@ public:
 	//TArray<FVector2D> GetLine();
 	//TArray<FVector2D> GetDots();
 	FDotIterator GetDotIterator();
-	bool GetDot(FDotIterator& Iterator, FVector2D& Position);
+	FShapeArray& GetShapeArray();
 
-	bool GetShape(FShape*& Shape, int32 Index);
-	bool GetPoint(FVector2D& Position, FShape*& Shape, int32 Index);
+	//bool GetDot(FDotIterator& Iterator, FVector2D& Position);
+
+
+	FVector2D GetDotPosition(FDotIterator& Iterator);
+	FVector2D GetPosition(FIntVector2 Point, FShape& Shape) const;
+
+	bool GetMousePosition(FVector2D& Position);
+
+	//FVector2D GetMousePosition();
+
+	//bool GetShape(FShape*& Shape, int32 Index);
+	//bool GetPoint(FVector2D& Position, FShape*& Shape, int32 Index);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GridWidthPercentage;
@@ -94,6 +111,8 @@ private:
 	void TickDotCollision();
 	FIntVector2 CheckDotsAroundCollsion(FIntVector2 LineStart);
 	bool CheckDotLineCollsion(FIntVector2 LineStart, FIntVector2 DotPos, FVector2D StartPos);
+	void TickShapeRecognizer();
+	bool IsShapeEqual(TArray<FIntVector2>& CurrShape, UMagicSkill& Spell);
 	void AddDotSquare(FIntVector2 Pos);
 	void RemoveDotSquare(FIntVector2 Pos);
 

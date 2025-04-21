@@ -70,10 +70,10 @@ void APlayerPawnController::Click(const FInputActionValue& InputActionValue)
 	//AMagicGameState* GameState = GetWorld()->GetGameState<AMagicGameState>();
 	UMagicComponent* MagicComponent = GetPawn<APlayerPawn>()->Magic;
 	bool is_down = InputActionValue.Get<bool>();
-	UE_LOG(LogTemp, Warning, TEXT("moise down: %i"), is_down);
+	//UE_LOG(LogTemp, Warning, TEXT("moise down: %i"), is_down);
 	if (is_down) {
 		FHitResult HitResult;
-		GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel1, false, HitResult);
+		GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel1, true, HitResult);
 		MagicComponent->StartDraw(HitResult.TraceEnd);
 	}
 	else {
