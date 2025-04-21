@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 //#include <Engine/CanvasRenderTarget2D.h>
 
+#include "MagicComponent.h"
 #include "MagicHUD.generated.h"
 
 /**
@@ -48,9 +49,10 @@ protected:
 	UMaterialInstanceDynamic* DotDynMaterial;
 
 private:
-	void DrawDots(TArray<FVector2D>& Dots);
+	void DrawDots(UMagicComponent& MagicComponent);
 	void ComputeDotTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Point);
-	void DrawLines(TArray<FVector2D>& Line);
+	void DrawShapes(UMagicComponent& MagicComponent);
+	void DrawShape(UMagicComponent& MagicComponent, FShape* Shape);
 	void ComputeLineTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Start, FVector2D End);
 	void AddTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Points[], uint32 Length);
 

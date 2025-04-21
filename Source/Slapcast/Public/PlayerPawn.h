@@ -40,6 +40,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Tick Cast Move"))
 	void ExecMove(FVector2D Position);
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Magic Spell"))
+	void ExecAddMagicSpell(UMagicSkill* Spell) {
+		Magic->Spells.Push(Spell);
+	}
+
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;*/
 

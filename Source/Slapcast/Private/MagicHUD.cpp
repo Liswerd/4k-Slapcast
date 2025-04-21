@@ -53,13 +53,13 @@ void AMagicHUD::DrawHUD()
 	//UE_LOG(LogTemp, Warning, TEXT("text: %s"), view);
 	//FVector2D Size = GetCanvasSize();
 	//FVector2D Pos = Size / 2;
-	UMagicComponent* GameState = ((APlayerPawn*)GetOwningPawn())->Magic;
+	UMagicComponent& MagicComponent = *((APlayerPawn*)GetOwningPawn())->Magic;
 
-	TArray<FVector2D> Dots = GameState->GetDots();
-	DrawDots(Dots);
+	//TArray<FVector2D> Dots = MagicComponent->GetDots();
+	DrawDots(MagicComponent);
 
-	TArray<FVector2D> Line = GameState->GetLine();
-	DrawLines(Line);
+	//TArray<FVector2D> Line = MagicComponent->GetLine();
+	DrawShapes(MagicComponent);
 }
 
 float AMagicHUD::GetWidth()
@@ -69,11 +69,13 @@ float AMagicHUD::GetWidth()
 	return Size.X;
 }
 
-void AMagicHUD::DrawDots(TArray<FVector2D>& Dots)
+void AMagicHUD::DrawDots(UMagicComponent& MagicComponent)
 {
 	TArray<FCanvasUVTri> Triangles;
-	for (int32 j = 0; j < Dots.Num(); j++) {
-		ComputeDotTriangles(Triangles, Dots[j] * GetWidth());
+	//FVector2D Position;
+	UMagicComponent::FDotIterator DotIterator = MagicComponent.GetDotIterator();
+	for (; DotIterator; ++DotIterator) {
+		ComputeDotTriangles(Triangles, MagicComponent.GetDotPosition(DotIterator) * GetWidth());
 	}
 	Canvas->K2_DrawMaterialTriangle(DotDynMaterial, Triangles);
 }
@@ -89,21 +91,53 @@ void AMagicHUD::ComputeDotTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D P
 			points[y * 4 + x * 2 + 1] = pos;
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("point: %s"), *Point.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("point: %s"), *Point.ToString());
 
 	// add triangle (strip-wise)
 	AddTriangles(Triangles, points, 8);
 }
 
-void AMagicHUD::DrawLines(TArray<FVector2D>& Line)
+void AMagicHUD::DrawShapes(UMagicComponent& MagicComponent)
 {
-	TArray<FCanvasUVTri> Triangles;
-	for (int32 j = 0; j < Line.Num() - 1; j++) {
-		ComputeLineTriangles(Triangles, Line[j] * GetWidth(), Line[j + 1] * GetWidth());
-	}
+	UMagicComponent::FShapeArray& Shapes = MagicComponent.GetShapeArray();
+	for (int32 j = 0; j < Shapes.Num(); j++) {
+		TArray<FCanvasUVTri> Triangles;
+		FShape& Shape = Shapes[j];
+		TArray<FIntVector2>& Points = Shape.Points;
+		//SAFETY: Shape Should Always have al least one point
+		FVector2D Point1 = MagicComponent.GetPosition(Points[0], Shape) * GetWidth();
+		FVector2D Point2;
+		for (int32 i = 1; i < Points.Num(); i++) {
+			Point2 = MagicComponent.GetPosition(Points[i], Shape) * GetWidth();
+			ComputeLineTriangles(Triangles, Point1, Point2);
+			Point1 = Point2;
+		}
+		if (j == Shapes.Num() - 1 && MagicComponent.GetMousePosition(Point2)) {
+			ComputeLineTriangles(Triangles, Point1, Point2 * GetWidth());
+		}
 
-	Canvas->K2_DrawMaterialTriangle(LineDynMaterial, Triangles);
+
+		LineDynMaterial->SetScalarParameterValue("complete", (float)(Shapes.Num() % 2));
+		Canvas->K2_DrawMaterialTriangle(LineDynMaterial, Triangles);
+		Canvas->Canvas->Flush_GameThread(true);
+	}
 }
+
+//void AMagicHUD::DrawShape(UMagicComponent& MagicComponent, FShape* Shape)
+//{
+//	TArray<FCanvasUVTri> Triangles;
+//	FVector2D Point1;
+//	FVector2D Point2;
+//	// SAFETY:  shapes should always have at least one point
+//	//MagicComponent.GetPoint(Point1, Shape, 0);
+//	for (int32 j = 1; MagicComponent.GetPoint(Point2, Shape, j); j++) {
+//		ComputeLineTriangles(Triangles, Point1 * GetWidth(), Point2 * GetWidth());
+//		Point1 = Point2;
+//	}
+//
+//	LineDynMaterial->SetScalarParameterValue("complete", (float)1);
+//	Canvas->K2_DrawMaterialTriangle(LineDynMaterial, Triangles);
+//}
 
 void AMagicHUD::ComputeLineTriangles(TArray<FCanvasUVTri>& Triangles, FVector2D Start, FVector2D End)
 {
