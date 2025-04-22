@@ -117,9 +117,9 @@ void AMagicHUD::DrawShapes(UMagicComponent& MagicComponent)
 		}
 
 
-		LineDynMaterial->SetScalarParameterValue("complete", (float)(Shapes.Num() % 2));
+		LineDynMaterial->SetScalarParameterValue("complete", (float)(0));
 		Canvas->K2_DrawMaterialTriangle(LineDynMaterial, Triangles);
-		Canvas->Canvas->Flush_GameThread(true);
+		//Canvas->Canvas->Flush_GameThread(true);
 	}
 }
 
