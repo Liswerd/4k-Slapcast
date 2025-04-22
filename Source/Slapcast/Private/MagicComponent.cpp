@@ -15,7 +15,10 @@ void UMagicComponent::StartDraw(FVector SendPos)
 	// clear all arrays
 	//LineArray.Empty();
 	//DotArray.Empty();
-	/*Shapes.Empty();*/
+	// TODO fix
+	Shapes.Empty();
+
+
 	if (Shapes.Num() > 0) {
 		Shapes.Last().Points.Shrink();
 	}
