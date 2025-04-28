@@ -22,8 +22,6 @@ APlayerPawn::APlayerPawn()
 
 	Mesh->SetupAttachment(RootComponent);
 	Camera->SetupAttachment(RootComponent);
-
-
 }
 
 // Called when the game starts or when spawned

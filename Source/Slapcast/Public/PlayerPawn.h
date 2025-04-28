@@ -45,6 +45,10 @@ public:
 		Magic->Spells.Push(Spell);
 	}
 
+	FVector GetVelocity() const override {
+		return PawnMovement->Velocity;
+	}
+
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* Root;*/
 
