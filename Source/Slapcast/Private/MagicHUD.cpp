@@ -34,18 +34,19 @@ AMagicHUD::AMagicHUD()
 
 void AMagicHUD::BeginPlay()
 {
+	Super::BeginPlay();
 	LineDynMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), LineMaterial, TEXT("LineDynamicMaterial"));
 	DotDynMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), DotMaterial, TEXT("DotDynamicMaterial"));
 	//FString a = LineDynMaterial->GetName();
 	//UE_LOG(LogTemp, Warning, TEXT("text: %s"), *a);
 }
 
-void AMagicHUD::Tick(float DeltaTime)
-{
-	//RenderTarget->UpdateResource();
-	//this->PostRender();
-	Super::Tick(DeltaTime);
-}
+//void AMagicHUD::Tick(float DeltaTime)
+//{
+//	//RenderTarget->UpdateResource();
+//	//this->PostRender();
+//	Super::Tick(DeltaTime);
+//}
 
 void AMagicHUD::DrawHUD()
 {
