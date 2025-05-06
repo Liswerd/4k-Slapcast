@@ -302,7 +302,7 @@ void UMagicComponent::TickShapeRecognizer()
 
 bool UMagicComponent::IsShapeEqual(TArray<FIntVector2>& CurrShape, UMagicSkill& Spell)
 {
-	// current shape not long enough
+	// current shape not long enoughR
 	int32 IndexOffset = CurrShape.Num() - Spell.Shape.Num() - 1;
 	if (IndexOffset < 0) {
 		return false;
